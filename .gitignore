@@ -1,8 +1,8 @@
-*.swp
-.cmi
-.cmo
-.mli
-.output
+Interpreter/*.swp
+Interpreter/*.cmi
+Interpreter/*.cmo
+Interpreter/*.mli
+Interpreter/*.output
 
-parser.ml
-lexer.ml
+Interpreter/parser.ml
+Interpreter/lexer.ml
