@@ -1,0 +1,8 @@
+*.swp
+.cmi
+.cmo
+.mli
+.output
+
+parser.ml
+lexer.ml
