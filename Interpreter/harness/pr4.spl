@@ -1,0 +1,17 @@
+begin
+	let set set1;
+	let str arg;
+	let int count = 0;
+
+	for str inp in args0 do
+		str arg = str inp;
+		for int count < int OUTPUT_COUNT do
+			set set1 = set set1 Insert str arg;
+			str arg = str arg^"a";
+			int count = int count + 1;
+		rof
+		int count = 0;
+	rof	
+	
+	print set set1;	
+end

@@ -1,0 +1,11 @@
+begin
+	let set lang_out;
+	let str word_out;
+
+	for str word_in in args0 do
+		str word_out = "a"^str word_in;
+		set lang_out = set lang_out Insert str word_out;
+	rof
+
+	print set lang_out;
+end

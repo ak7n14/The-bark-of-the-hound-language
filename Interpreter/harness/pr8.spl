@@ -1,0 +1,18 @@
+begin
+
+	let @str;
+	let $set;
+
+	for @inp in $input0 do
+		@inp = @inp^"a";
+		$set = $set add @inp;
+	done
+
+	for @inp in $input1 do
+		@inp = @inp^"b";
+		$set = $set add @inp;
+	done
+
+	print $set;
+
+end

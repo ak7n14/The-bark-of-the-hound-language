@@ -1,0 +1,34 @@
+begin
+	let $set_a;
+	let @arg;
+	let #count = 0;
+
+	for @inp in $input0 do
+		@arg = @inp;
+		for #count < #OUTPUT_COUNT do
+			$set_a = $set_a add @arg;
+			@arg = @arg^"a";
+			#count = #count + 1;
+		done
+		#count = 0;
+	done
+
+	let $set_b;
+	#count = 0;
+
+	for @inp in $input1 do
+		@arg = @inp;
+		for #count < #OUTPUT_COUNT do
+			$set_b = $set_b add @arg;
+			@arg = @arg^"b";
+			#count = #count + 1;
+		done
+		#count = 0;
+	done	
+	
+	for @inp in $set_b do
+		$set_a = $set_a add @inp;
+	done	
+
+	print $set_a;
+end

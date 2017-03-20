@@ -1,0 +1,53 @@
+begin
+	let set set1;
+
+	let str arg;
+
+	let int i1;
+	let int i2;
+	let int i3;
+
+	let int c1;
+	let int c2;
+	let int c3;
+
+	for str inp in args0 do
+		str arg = str inp;
+		for int i1 < 3 do
+			str arg = str inp;
+			int c1 = int i1 % 3;
+			if int c1 == 0 then
+				str arg = str arg^"a";
+			else
+				if int c1 == 1 then
+					str arg = str arg^"b";
+				else
+					str arg = str arg^"c";
+				fi
+			fi
+			int i1 = int i1 + 1;
+			let str arg2 = str arg;
+			for int i2 < 3 do
+				int c2 = int i2 % 3;
+				if int c2 == 0 then
+					str arg = str arg^"a";
+				else
+					if int c2 == 1 then
+						str arg = str arg^"b";
+					else
+						str arg = str arg^"c";
+					fi
+				fi
+				int i2 = int i2 + 1;
+				set set1 = set set1 Insert str arg;
+				str arg = str arg2;
+			rof
+			int i2 = 0;
+		rof
+		int i1 = 0;
+	rof
+
+	print set set1;
+end	
+
+

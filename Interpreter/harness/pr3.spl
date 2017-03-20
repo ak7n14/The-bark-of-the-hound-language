@@ -1,0 +1,69 @@
+begin
+	let set s1; let set s2; let set s3;
+
+	let set s1us2; let set s1us3;
+
+	let set s1ms2; let set s2ms1;
+	let set s1ms3; let set s3ms1;
+
+	let set s1ns2; let set s1ns3;
+
+	/* POPULATE SETS */
+	for str inp0 in args0 do
+		set s1 = set s1 Insert str inp0;
+		set s1us2 = set s1us2 Insert str inp0;
+		set s1us3 = set s1us3 Insert str inp0;
+	rof
+
+	for str inp1 in args1 do
+		set s2 = set s2 Insert str inp1;
+		set s1us2 = set s1us2 Insert str inp1;
+	rof
+
+	for str inp2 in args2 do
+		set s3 = set s3 Insert str inp2;
+		set s1us3 = set s1us3 Insert str inp2;
+	rof
+
+	/* SET MINUS */
+	set s1ms2 = set s1;
+	set s2ms1 = set s2;
+	set s1ms3 = set s1;
+	set s3ms1 = set s3;
+
+	for str el1 in set s1 do
+		set s2ms1 = set s2ms1 SetMinus str el1;
+		set s3ms1 = set s3ms1 SetMinus str el1;
+	rof
+
+	for str el2 in set s2 do
+		set s1ms2 = set s1ms2 SetMinus str el2;
+	rof
+
+	for str el3 in set s3 do
+		set s1ms3 = set s1ms3 SetMinus str el3;
+	rof
+
+	/* INTERSECTION */
+	set s1ns2 = set s1us2;
+	set s1ns3 = set s1us3;
+
+	for str el1 in set s1ms2 do
+		set s1ns2 = set s1ns2 SetMinus str el1;
+	rof
+
+	for str el2 in set s2ms1 do
+		set s1ns2 = set s1ns2 SetMinus str el2;
+	rof
+
+	for str el3 in set s1ms3 do
+		set s1ns3 = set s1ns3 SetMinus str el3;
+	rof
+
+	for str el4 in set s3ms1 do
+		set s1ns3 = set s1ns3 SetMinus str el4;
+	rof
+
+	print set s1ns2;
+	print set s1ns3;
+end

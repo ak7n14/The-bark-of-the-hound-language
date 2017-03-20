@@ -1,0 +1,24 @@
+begin
+	let $set;
+	let $output;
+
+	for @inp in $input0 do
+		$set = $set add @inp;
+	done
+
+	for @inp in $input1 do
+		$set = $set add @inp;
+	done
+
+	let @current;
+
+	for @str in $set do
+		@current = @str^"a";
+		$output = $output add @current;
+		@current = @str^"b";
+		$output = $output add @current;
+	done
+
+	print $output;
+
+end

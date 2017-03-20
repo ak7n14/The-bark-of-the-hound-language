@@ -1,0 +1,20 @@
+begin
+	let $set;
+	let @str;
+	let $union;
+
+	for @inp in $input0 do
+		$set = $set add @inp;
+	done
+
+	for @inp in $input1 do
+		$set = $set add @inp;
+	done
+
+	for @thing in $set do
+		@str = @thing^"a";
+		$union = $union add @str;
+	done
+
+	print $union;
+end

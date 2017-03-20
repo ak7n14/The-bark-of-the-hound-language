@@ -1,0 +1,20 @@
+begin
+	let set set1;
+	let set set2;
+
+	for str inp1 in args0 do
+		set set1 = set set1 Insert str inp1;
+		set set2 = set set2 Insert str inp1;
+	rof
+
+	for str inp2 in args1 do
+		set set1 = set set1 Insert str inp2;
+	rof
+	
+	for str inp3 in args2 do
+		set set2 = set set2 Insert str inp3;
+	rof
+
+	print set set1;
+	print set set2;
+end
