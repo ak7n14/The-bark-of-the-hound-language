@@ -4,13 +4,12 @@ open ParseTree;;
 %}
 %token <int> INT
 %token <string> STRING
-%token <string> INTVAR STRVAR BOOLVAR SETVAR
-%token <string> INPUT
-%token <string> COUNT
 %token <bool> TRUE
 %token <bool> FALSE
+%token <string> INPUT
+%token <string> COUNT
+%token <string> INTVAR STRVAR BOOLVAR SETVAR
 %token BEGIN END
-%token INSERT SETMINUS
 %token IF THEN ELSE FI
 %token FOR IN DO ROF
 %token PRINT
@@ -19,6 +18,7 @@ open ParseTree;;
 %token ASSGN
 %token PLUS MINUS TIMES DIVIDE MOD
 %token STRCON
+%token INSERT SETMINUS
 %token LESS GREAT LESSEQUAL GREATEQUAL EQUAL NOTEQUAL NOT OR AND
 %right OR
 %right AND
@@ -44,7 +44,7 @@ open ParseTree;;
 %type <ParseTree.booleanAction> booleanAction
 %type <ParseTree.booleanValue> booleanValue
 %type <ParseTree.setAction> setAction
-%type <string> set
+%type <string> setValue
 %type <ParseTree.declarationAction> declarationAction
 %type <ParseTree.mutibleAction> mutibleAction
 %type <ParseTree.print> printAction
@@ -60,19 +60,19 @@ body:
 ;
 
 statement:
- | for_do_rof               			{ ForStatement $1 }
  | if_then_else_fi                 		{ IfStatement $1 }   
+ | for_do_rof               			{ ForStatement $1 }
  | action LINEEND	   			{ ActionStatement $1 }
-;
-
-for_do_rof:
- | FOR STRVAR IN set DO body ROF 		{ ForEach ($2, $4, $6) }
- | FOR booleanAction DO body ROF 		{ ForBoolean ($2, $4) }
 ;
 
 if_then_else_fi:
  | IF booleanAction THEN body FI    	     	{ If ($2, $4) }                           
  | IF booleanAction THEN body ELSE body FI 	{ IfElse ($2, $4, $6) } 	   
+;
+
+for_do_rof:
+ | FOR booleanAction DO body ROF 		{ ForBoolean ($2, $4) }
+ | FOR STRVAR IN setValue DO body ROF 		{ ForEach ($2, $4, $6) }
 ;
 
 action:
@@ -83,10 +83,15 @@ action:
 ;
 
 operation:
- | setAction					{ SetAction $1 }
  | integerAction				{ IntegerAction $1 }
  | stringAction 				{ StringAction $1 }
  | booleanAction 				{ BooleanAction $1 }
+ | setAction					{ SetAction $1 }
+;
+
+integerValue:
+ | INT 						{ IntegerLiteral $1 }
+ | INTVAR 					{ IntegerVariable $1 }
 ;
 
 integerAction:
@@ -100,9 +105,9 @@ integerAction:
  | MINUS integerAction %prec UNARYMINUS    	{ UnaryMinus $2 }
 ;
 
-integerValue:
- | INT 						{ IntegerLiteral $1 }
- | INTVAR 					{ IntegerVariable $1 }
+stringValue:
+ | STRING 					{ StringLiteral $1 }
+ | STRVAR 					{ StringVariable $1 }
 ;
 
 stringAction:
@@ -110,9 +115,10 @@ stringAction:
  | stringAction STRCON stringValue 		{ StringConcatenation ($1, $3) }
 ;
 
-stringValue:
- | STRING 					{ StringLiteral $1 }
- | STRVAR 					{ StringVariable $1 }
+booleanValue:
+ | TRUE						{ BooleanLiteral $1 }
+ | FALSE					{ BooleanLiteral $1 }
+ | BOOLVAR 					{ BooleanVariable $1 }
 ;
 
 booleanAction:
@@ -133,21 +139,15 @@ booleanAction:
  | NOT booleanAction 				{ Not $2 }
 ;
 
-booleanValue:
- | TRUE						{ BooleanLiteral $1 }
- | FALSE					{ BooleanLiteral $1 }
- | BOOLVAR 					{ BooleanVariable $1 }
+setValue:
+ | INPUT 					{ $1 }
+ | SETVAR 					{ $1 }
 ;
 
 setAction:
- | set 						{ Set $1 }
- | set INSERT stringValue			{ Insert ($1, $3) }
- | set SETMINUS stringValue			{ SetMinus ($1, $3) }
-;
-
-set:
- | INPUT 					{ $1 }
- | SETVAR 					{ $1 }
+ | setValue					{ Set $1 }
+ | setValue INSERT stringValue			{ Insert ($1, $3) }
+ | setValue SETMINUS stringValue		{ SetMinus ($1, $3) }
 ;
 
 declarationAction:

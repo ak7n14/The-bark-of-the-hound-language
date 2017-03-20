@@ -87,18 +87,19 @@ let processInput input_line stream_number=
   setBinding := VariableBinding.add ("args"^(string_of_int !stream_number)) (parseColon (get_uniq_words input_line)) !setBinding
 ;;
 
+(* action occuring with integer *)
 let rec processIntAction e = match e with
   | Integer iv -> lookupIntVar iv
   | Plus (v1, v2) -> (processIntAction v1) + (processIntAction v2)
   | Minus (v1, v2) -> (processIntAction v1) - (processIntAction v2)
   | Times (v1, v2) -> (processIntAction v1) * (processIntAction v2)
-  | Divide (v1, v2) ->( try
-                          (processIntAction v1) / (processIntAction v2)
-                        with Division_by_zero -> failwith "Cannot divide by zero.")
+  | Divide (v1, v2) ->( try (processIntAction v1) / (processIntAction v2)
+                        with Division_by_zero -> failwith "Fatal division by 0 error.")
   | Mod (v1, v2) -> (processIntAction v1) mod (processIntAction v2)
   | UnaryMinus v1 -> -(processIntAction v1)
 ;;
 
+(* action occuring with string *)
 let rec processStrAction e = match e with
   | String sv -> lookupStrVar sv
   | StringConcatenation (s1, s2) -> (processStrAction s1) ^ (lookupStrVar s2)
@@ -124,14 +125,12 @@ let rec processBoolAction e = match e with
 let processSetAction e  = match e with
   | Set s -> lookupSet s
   | Insert (name, sv) -> (let string_value = lookupStrVar sv in
-                          try
-                              let set = lookupSet name in string_value :: set;
-                          with Not_found -> failwith ("Set "^name^" Not Found. Hint: Maybe try - let "^name^";"))
+                          try let set = lookupSet name in string_value :: set;
+                          with Not_found -> failwith ("Variable " ^ name ^ " undefined. Ensure keyword 'set' preceeds variable name"))
   | SetMinus (name, sv) -> (let string_value = lookupStrVar sv in
-                          try
-                              let set = lookupSet name in
-                                List.filter (fun x-> if (compare string_value x)==0 then false else true) set
-                          with Not_found -> failwith ("Set "^name^" Not Found. Hint: Maybe try - let "^name^";"))
+                          try let set = lookupSet name in
+                          	List.filter (fun x-> if (compare string_value x)==0 then false else true) set
+                          with Not_found -> failwith ("Variable " ^ name ^ " undefined. Ensure keyword 'set' preceeds variable name"))
 ;;
 
 let rec processDecAction e = match e with
@@ -141,7 +140,6 @@ let rec processDecAction e = match e with
   | BooleanVariableDeclaration (s, ba) -> boolBinding := VariableBinding.add s (processBoolAction ba) !boolBinding
 ;;
 
-(* ============================ helper code ===============================*)
 let rec empty_to_colon = function
   | [] -> []
   | (h::t) when h = "" -> ":"::(empty_to_colon t) 
@@ -168,34 +166,32 @@ let formatSet o =
 (* ============================ helper code ===============================*)
 
 let rec processPrint e = match e with
-  | Print (SetAction s) -> (try 
-                              let set = (processSetAction s) in 
-                                print_newline (print_string (formatSet (empty_to_colon (sort_string_list set))))
-                            with Not_found -> failwith ("Set Not Found. Hint: Maybe didn't declare it?"))
   | Print (IntegerAction i) -> print_newline (print_int (processIntAction i))
+  | Print (StringAction s) -> print_newline (print_string (processStrAction s))
   | Print (BooleanAction b) -> (let result = (processBoolAction b) in
                                   if (result == true) then print_newline (print_string "true") 
                                   else print_newline (print_string "false"))
-  | Print (StringAction s) -> print_newline (print_string (processStrAction s))
-  (*| PrtPrim (CtLeaf c) -> processPrint (PrtPrim (IntLeaf !outputCount))*)
+  | Print (SetAction s) -> (try let set = (processSetAction s) in 
+                                print_newline (print_string (formatSet (empty_to_colon (sort_string_list set))))
+                            with Not_found -> failwith ("Set undefined. Ensure the set is correctly defined."))
 ;;
 
 let processMutAction e = match e with
-  | SetMutible (setName, sa) -> (let new_set = processSetAction sa in 
-                              setBinding := VariableBinding.add setName new_set !setBinding)
   | IntegerMutible (intName, ia) -> (let new_int = processIntAction ia in
                               intBinding := VariableBinding.add intName new_int !intBinding)
   | StringMutible (strName, sa) -> (let new_str = processStrAction sa in
                               stringBinding := VariableBinding.add strName new_str !stringBinding)
   | BooleanMutible (blName, ba) -> (let new_bl = processBoolAction ba in
                               boolBinding := VariableBinding.add blName new_bl !boolBinding)
+  | SetMutible (setName, sa) -> (let new_set = processSetAction sa in 
+                              setBinding := VariableBinding.add setName new_set !setBinding)
 ;;
 
 let processOperation e = match e with
-  | SetAction sa -> processSetAction sa; ()
   | IntegerAction ia -> processIntAction ia; ()
   | StringAction sa -> processStrAction sa; ()
   | BooleanAction ba -> processBoolAction ba; ()
+  | SetAction sa -> processSetAction sa; ()
 ;;
 
 let processAction e = match e with
@@ -222,20 +218,21 @@ and processIf e = match e with
   | IfElse (b, bod1, bod2) -> if (processBoolAction b) then (processBody bod1) else (processBody bod2)
 
 and processFor e = match e with
-  | ForEach (v, setName, bod) -> (try
-                                exists v;
-                                failwith ("Variable "^v^" used already! Hint: Try a variable that is not already declared by a let declaration.")
-                              with Not_found -> (try
-                                                   (let set = lookupSet setName in
-                                                    let count = List.length set in
-                                                      processDecAction (StringVariableDeclaration (v, String (StringLiteral "")));
-                                                      for i = 0 to (count - 1) do 
-                                                        processMutAction (StringMutible (v, String (StringLiteral (List.nth set i))));
-                                                        processBody bod;
-                                                      done;
-                                                      stringBinding := VariableBinding.remove v !stringBinding)
-                                                 with Not_found -> failwith ("Input set "^setName^" Not Found. Hint: args[0] refers to the 1st language in input file and so on.")))
-  | ForBoolean (bl, bod) -> while (processBoolAction bl) do (processBody bod) done
+  | ForEach (v, setName, bod) -> 
+  	(try exists v;
+ 	 failwith ("Variable " ^ v ^ " is already in use. Try changing variable name.")
+     with Not_found ->
+	(try (let set = lookupSet setName in
+    	let count = List.length set in
+       		processDecAction (StringVariableDeclaration (v, String (StringLiteral "")));
+           	for i = 0 to (count - 1) do 
+            	processMutAction (StringMutible (v, String (StringLiteral (List.nth set i))));
+                processBody bod;
+            done;
+            stringBinding := VariableBinding.remove v !stringBinding)
+     with Not_found -> failwith ("Invalid Input " ^ setName ^ ". Enter valid args#.")))
+  | ForBoolean (bl, bod) -> 
+    while (processBoolAction bl) do (processBody bod) done
 ;;
 
 let storeInput = 
@@ -243,18 +240,16 @@ let storeInput =
     let streamCount = ref 0 in
       while true do
         let line = input_line stdin in
-          if (Str.string_match (Str.regexp "^[0-9]+$") line 0) then 
-            (
+          if (Str.string_match (Str.regexp "^[0-9]+$") line 0) then (
             outputCount := (int_of_string line);
-            intBinding := VariableBinding.add "int OUTPUT_COUNT" !outputCount !intBinding)
-          else( 
+            intBinding := VariableBinding.add "int OUTPUT_COUNT" !outputCount !intBinding
+          ) else ( 
             processInput line streamCount;
             streamCount := !streamCount + 1
           )
       done;
       None
-  with
-      End_of_file -> None
+  with End_of_file -> None
 ;;
 
 let run =
