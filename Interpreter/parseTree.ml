@@ -1,91 +1,91 @@
-type int_var = 
-| Int of int
-| IntVar of string
+type integerValue = 
+| IntegerLiteral of int
+| IntegerVariable of string
 ;;
 
-type str_var = 
-| Str of string
-| StrVar of string
+type stringValue = 
+| StringLiteral of string
+| StringVariable of string
 ;;
 
-type bool_var = 
-| Bool of bool
-| BoolVar of string
+type booleanValue = 
+| BooleanLiteral of bool
+| BooleanVariable of string
 ;;
 
-type intAction =
-| IntOrVar of int_var
-| Plus of intAction * intAction
-| Minus of intAction * intAction
-| Times of intAction * intAction
-| Divide of intAction * intAction
-| Mod of intAction * intAction
-| Uminus of intAction
+type integerAction =
+| Integer of integerValue
+| Plus of integerAction * integerAction
+| Minus of integerAction * integerAction
+| Times of integerAction * integerAction
+| Divide of integerAction * integerAction
+| Mod of integerAction * integerAction
+| UnaryMinus of integerAction
 ;;
 
-type strAction =
-| StrOrVar of str_var
-| Cat of strAction * str_var
+type stringAction =
+| String of stringValue
+| StringConcatenation of stringAction * stringValue
 ;;
 
 type setAction =
 | Set of string
-| SetAdd of string * str_var
-| SetRem of string * str_var
+| Insert of string * stringValue
+| SetMinus of string * stringValue
 ;;
 
-type boolAction =
-| BoolOrVar of bool_var
-| Les of intAction * intAction
-| Grt of intAction * intAction
-| LesEq of intAction * intAction
-| GrtEq of intAction * intAction
-| IntEq of intAction * intAction
-| IntNtEq of intAction * intAction
-| StrEq of strAction * strAction
-| StrNtEq of strAction * strAction
-| BlEq of boolAction * boolAction
-| BlNtEq of boolAction * boolAction
-| And of boolAction * boolAction
-| Or of boolAction * boolAction
-| Not of boolAction
+type booleanAction =
+| Boolean of booleanValue
+| Less of integerAction * integerAction
+| Great of integerAction * integerAction
+| LessEqual of integerAction * integerAction
+| GreatEqual of integerAction * integerAction
+| IntegerEqual of integerAction * integerAction
+| IntegerNotEqual of integerAction * integerAction
+| StringEqual of stringAction * stringAction
+| StringNotEqual of stringAction * stringAction
+| BooleanEqual of booleanAction * booleanAction
+| BooleanNotEqual of booleanAction * booleanAction
+| And of booleanAction * booleanAction
+| Or of booleanAction * booleanAction
+| Not of booleanAction
 ;;
 
-type decAction =
-| LVarDec of string
-| IVarDec of string * intAction
-| SVarDec of string * strAction
-| BVarDec of string * boolAction
+type declarationAction =
+| SetVariableDeclaration of string
+| IntegerVariableDeclaration of string * integerAction
+| StringVariableDeclaration of string * stringAction
+| BooleanVariableDeclaration of string * booleanAction
 ;;
 
 type operation =
 | SetAction of setAction
-| IntAction of intAction
-| StrAction of strAction
-| BoolAction of boolAction
+| IntegerAction of integerAction
+| StringAction of stringAction
+| BooleanAction of booleanAction
 ;;
 
 type print =
 | Print of operation
 ;;
 
-type mutAction =
-| SetMut of string * setAction
-| IntMut of string * intAction
-| StrMut of string * strAction
-| BlMut of string * boolAction
+type mutibleAction =
+| SetMutible of string * setAction
+| IntegerMutible of string * integerAction
+| StringMutible of string * stringAction
+| BooleanMutible of string * booleanAction
 ;;
 
 type action = 
 | Operation of operation
-| DecAction of decAction
-| MutAction of mutAction
+| DeclarationAction of declarationAction
+| MutibleAction of mutibleAction
 | PrintAction of print
 ;;
 
 type body =
 | SingleStatement of statement
-| MultiStatement of statement * body
+| MultipleStatement of statement * body
 and 
 statement = 
 | IfStatement of ifElse
@@ -93,11 +93,11 @@ statement =
 | ActionStatement of action
 and 
 ifElse =
-| If of boolAction * body
-| IfElse of boolAction * body * body
+| If of booleanAction * body
+| IfElse of booleanAction * body * body
 and 
 forDo =
-| ForBool of boolAction * body
+| ForBoolean of booleanAction * body
 | ForEach of string * string * body
 ;;
 

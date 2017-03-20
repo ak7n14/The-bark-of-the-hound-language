@@ -1,38 +1,65 @@
+# 
+# Rules for compiling and linking the typechecker/evaluator
+#
+# Type
+#   make         to rebuild the executable file c
+#   make clean   to remove all intermediate and temporary files
+#   make depend  to rebuild the intermodule dependency graph that is used
+#                  by make to determine which order to schedule 
+#	           compilations.  You should not need to do this unless
+#                  you add new modules or new dependencies between 
+#                  existing modules.  (The graph is stored in the file
+#                  .depend)
 
-OUTPUT_NAME = mysplinterpreter
+# These are the object files needed to rebuild the main executable file
+#
+OBJS = parseTree.cmo parser.cmo lexer.cmo run.cmo
 
-all: main
+COMMONOBJS = str.cma
 
-main: lexer.cmo parser.cmo run.cmo parseTree.cmo
-	ocamlc -o $(OUTPUT_NAME) str.cma lexer.cmo parser.cmo run.cmo parseTree.cmo
+# Files that need to be generated from other files
+DEPEND += parseTree.ml lexer.ml parser.ml
 
-lexer.cmo: lexer.ml parser.ml parseTree.cmo
-	ocamlc -c lexer.ml
+# When "make" is invoked with no arguments, we build an executable 
+# typechecker, after building everything that it depends on
+all: $(DEPEND) $(OBJS) mysplinterpreter
 
-parser.cmo: parser.ml parseTree.cmo
-	ocamlc -c parser.ml
+# Include an automatically generated list of dependencies between source files
+include .depend
 
-run.cmo: run.ml parseTree.cmo
-	ocamlc -w -10 -c run.ml
+# Build an executable typechecker
+mysplinterpreter: $(OBJS)
+	@echo Linking $@
+	ocamlc -o $@ $(COMMONOBJS) $(OBJS) 
 
-lexer.ml: parseTree.cmo
-	ocamllex lexer.mll
+# Compile an ML module interface
+%.cmi : %.mli
+	ocamlc -c $<
 
-parser.ml: parser.mli parseTree.cmo
-	ocamlc -c parser.mli
+# Compile an ML module implementation
+%.cmo : %.ml
+	ocamlc -c $<
 
-parser.mli: parseTree.cmo
-	ocamlyacc parser.mly
+# Generate ML files from a parser definition file
+parser.ml parser.mli: parser.mly
+	@rm -f parser.ml parser.mli
+	ocamlyacc -v parser.mly
+	@chmod -w parser.ml parser.mli
 
-parseTree.cmo: parseTree.ml
-	ocamlc -c parseTree.ml
-clean:
-	rm -f lexer.cmo
-	rm -f parser.cmo
-	rm -f run.cmo
-	rm -f parser.mli
-	rm -f parser.ml
-	rm -f lexer.ml
-	rm -f *.cmi
-	rm -f parseTree.cmo
+# Generate ML files from a lexer definition file
+%.ml %.mli: %.mll
+	@rm -f $@
+	ocamllex $<
+	@chmod -w $@
 
+# Clean up the directory
+clean::
+	rm -rf lexer.ml parser.ml parser.mli *.o *.cmo *.cmi parser.output
+
+# Rebuild intermodule dependencies
+depend:: $(DEPEND) 
+	ocamldep $(INCLUDE) *.mli *.ml > .depend
+
+# 
+test::
+	bash test.sh

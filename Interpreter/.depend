@@ -1,0 +1,10 @@
+lexer.cmo : parser.cmi
+lexer.cmx : parser.cmx
+parseTree.cmo : parseTree.cmi
+parseTree.cmx : parseTree.cmi
+parseTree.cmi :
+parser.cmo : parseTree.cmi parser.cmi
+parser.cmx : parseTree.cmx parser.cmi
+parser.cmi : parseTree.cmi
+run.cmo : parser.cmi parseTree.cmi lexer.cmo
+run.cmx : parser.cmx parseTree.cmx lexer.cmx
