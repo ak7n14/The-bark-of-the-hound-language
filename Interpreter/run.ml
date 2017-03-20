@@ -7,12 +7,11 @@ module VariableBinding = Map.Make(String);;
 let intBinding = ref VariableBinding.empty;;
 let stringBinding = ref VariableBinding.empty;;
 let boolBinding = ref VariableBinding.empty;;
-
 let setBinding = ref VariableBinding.empty;;
 
 let outputCount = ref 0;;
 
-(* ============================ helper code ===============================*)
+(* Functions used to convert string set into list of strings *)
 let get_words input = 
   let remove_stuff = Str.global_replace (Str.regexp "[ '{' | '}' | ' ']") "" in
     Str.split_delim (Str.regexp ",") (remove_stuff input);;
@@ -31,6 +30,26 @@ let get_uniq_words input =
   sort_string_list (get_words input)
 ;;
 
+(* Check if a variable is actually defined *)
+let exists name =
+  try
+    VariableBinding.find name !intBinding;
+    None
+  with Not_found -> try 
+    VariableBinding.find name !stringBinding; 
+    None
+  with Not_found -> 
+    VariableBinding.find name !boolBinding;
+    None
+;;
+
+let processVar name = 
+  try
+    exists name          
+  with Not_found ->  failwith ("Variable "^name^ " is not declared.")
+;;
+
+(* Functions to look up the values of variables *)
 let lookupStrVar e = match e with
   | StringLiteral s -> s
   | StringVariable sv -> try
@@ -56,47 +75,16 @@ let lookupSet name =
   VariableBinding.find name !setBinding
 ;;
 
-let rec convert_empty_input = function
+(* parse colons into the empty set *)
+let rec parseColon = function
 | [] -> []
-| (h::t) when h = ":" -> ""::(convert_empty_input t) 
-| (h::t) ->  h::(convert_empty_input t)
+| (h::t) when h = ":" -> ""::(parseColon t) 
+| (h::t) ->  h::(parseColon t)
 ;;
 
+(* Add line of input as a set variable *)
 let processInput input_line stream_number= 
-  setBinding := VariableBinding.add ("args"^(string_of_int !stream_number)) (convert_empty_input (get_uniq_words input_line)) !setBinding
-;;
-
-(* ============================ helper code ===============================*)
-
-let processSetAction e  = match e with
-  | Set s -> lookupSet s
-  | Insert (name, sv) -> (let string_value = lookupStrVar sv in
-                          try
-                              let set = lookupSet name in string_value :: set;
-                          with Not_found -> failwith ("Set "^name^" Not Found. Hint: Maybe try - let "^name^";"))
-  | SetMinus (name, sv) -> (let string_value = lookupStrVar sv in
-                          try
-                              let set = lookupSet name in
-                                List.filter (fun x-> if (compare string_value x)==0 then false else true) set
-                          with Not_found -> failwith ("Set "^name^" Not Found. Hint: Maybe try - let "^name^";"))
-;;
-
-let exists name =
-  try
-    VariableBinding.find name !intBinding;
-    None
-  with Not_found -> try 
-    VariableBinding.find name !stringBinding; 
-    None
-  with Not_found -> 
-    VariableBinding.find name !boolBinding;
-    None
-;;
-
-let processVar name = 
-  try
-    exists name          
-  with Not_found ->  failwith ("Variable "^name^ " is not declared.")
+  setBinding := VariableBinding.add ("args"^(string_of_int !stream_number)) (parseColon (get_uniq_words input_line)) !setBinding
 ;;
 
 let rec processIntAction e = match e with
@@ -131,6 +119,19 @@ let rec processBoolAction e = match e with
   | And (ba1, ba2) -> (processBoolAction ba1) && (processBoolAction ba2)
   | Or (ba1, ba2) -> (processBoolAction ba1) || (processBoolAction ba2)
   | Not ba -> not (processBoolAction ba)
+;;
+
+let processSetAction e  = match e with
+  | Set s -> lookupSet s
+  | Insert (name, sv) -> (let string_value = lookupStrVar sv in
+                          try
+                              let set = lookupSet name in string_value :: set;
+                          with Not_found -> failwith ("Set "^name^" Not Found. Hint: Maybe try - let "^name^";"))
+  | SetMinus (name, sv) -> (let string_value = lookupStrVar sv in
+                          try
+                              let set = lookupSet name in
+                                List.filter (fun x-> if (compare string_value x)==0 then false else true) set
+                          with Not_found -> failwith ("Set "^name^" Not Found. Hint: Maybe try - let "^name^";"))
 ;;
 
 let rec processDecAction e = match e with
