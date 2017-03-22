@@ -1,0 +1,36 @@
+begin
+	/* Determine which set to use */
+	let str char_selected;
+	let str aORb;
+
+	for str inp1 in args0 do
+		if (str char_selected == "") then
+			str char_selected = str inp1;
+			str aORb = "a";
+		fi
+	rof
+
+	if (str char_selected == "") then
+		for str inp2 in args1 do
+			if (str char_selected == "") then
+				str char_selected = str inp2;
+				str aORb = "b";
+			fi
+		rof
+	fi
+
+	let str arg;
+	let str str_out;
+	let set lang_out;
+
+	let int count;
+	for int count < int OUTPUT_COUNT do
+		int count = int count + 1;
+		
+		str str_out = str char_selected ^ str arg;
+		set lang_out = set lang_out Insert str str_out;
+		str arg = str arg ^ str aORb;
+	rof
+
+	print set lang_out;
+end

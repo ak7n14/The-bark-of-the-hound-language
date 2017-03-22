@@ -1,0 +1,16 @@
+begin
+	let set s1us2;
+	let str temp;
+
+	for str inp1 in args0 do
+		str temp = str inp1 ^ "a";
+		set s1us2 = set s1us2 Insert str temp;
+	rof
+
+	for str inp2 in args1 do
+		str temp = str inp2 ^ "b";
+		set s1us2 = set s1us2 Insert str temp;
+	rof
+
+	print set s1us2;
+end

@@ -54,12 +54,8 @@ parser.ml parser.mli: parser.mly
 
 # Clean up the directory
 clean::
-	rm -rf lexer.ml parser.ml parser.mli *.o *.cmo *.cmi parser.output
+	rm -rf lexer.ml parser.ml parser.mli parseTree.mli *.o *.cmo *.cmi parser.output
 
 # Rebuild intermodule dependencies
 depend:: $(DEPEND) 
 	ocamldep $(INCLUDE) *.mli *.ml > .depend
-
-# 
-test::
-	bash test.sh
