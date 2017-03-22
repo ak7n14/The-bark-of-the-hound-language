@@ -1,4 +1,4 @@
-Interpreter/*.swp
+*.swp
 Interpreter/*.cmi
 Interpreter/*.cmo
 Interpreter/*.mli
