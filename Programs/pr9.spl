@@ -1,21 +1,29 @@
 begin
+	let str set2prefix; /* first char of input 2 */
 	let set s1us2;
 	let str temp;
 
 	for str inp1 in args0 do
-		str temp = str inp1 ^ "a";
-		set s1us2 = set s1us2 Insert str temp;
-
-		str temp = str inp1 ^ "b";
+		str temp = "a" ^ str inp1;
 		set s1us2 = set s1us2 Insert str temp;
 	rof
 
 	for str inp2 in args1 do
-		str temp = str inp2 ^ "a";
-		set s1us2 = set s1us2 Insert str temp;
+		if (str set2prefix == "") then
+			str set2prefix = str inp2;
+		fi
+	rof
 
-		str temp = str inp2 ^ "b";
-		set s1us2 = set s1us2 Insert str temp;
+	let str arg;
+	let str str_out;
+
+	let int count;
+	for int count < int OUTPUT_COUNT do
+		int count = int count + 1;
+		
+		str str_out = str set2prefix ^ str arg;
+		set s1us2 = set s1us2 Insert str str_out;
+		str arg = str arg ^ "b";
 	rof
 
 	print set s1us2;
