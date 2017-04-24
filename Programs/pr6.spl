@@ -3,12 +3,12 @@ begin
 	let str temp;
 
 	for str inp1 in args0 do
-		str temp = str inp1 ^ "a";
+		str temp = "a" ^ str inp1;
 		set s1us2 = set s1us2 Insert str temp;
 	rof
 
 	for str inp2 in args1 do
-		str temp = str inp2 ^ "a";
+		str temp = "b" ^ str inp2;
 		set s1us2 = set s1us2 Insert str temp;
 	rof
 
