@@ -1,16 +1,49 @@
 begin
+	let set s1; let set s2;
+
 	let set s1us2;
+
+	let set s1ms2; let set s2ms1;
+
+	let set s1ns2;
+
 	let str temp;
 
-	for str inp1 in args0 do
-		str temp = str inp1 ^ "a";
+	/* POPULATE SETS */
+	for str inp0 in args0 do
+		str temp = "a" ^ str inp0;
+		set s1 = set s1 Insert str temp;
 		set s1us2 = set s1us2 Insert str temp;
 	rof
 
-	for str inp2 in args1 do
-		str temp = str inp2 ^ "b";
+	for str inp1 in args1 do
+		str temp = "a" ^ str inp1;
+		set s2 = set s2 Insert str temp;
 		set s1us2 = set s1us2 Insert str temp;
 	rof
 
-	print set s1us2;
+	/* SET MINUS */
+	set s1ms2 = set s1;
+	set s2ms1 = set s2;
+
+	for str el1 in set s1 do
+		set s2ms1 = set s2ms1 SetMinus str el1;
+	rof
+
+	for str el2 in set s2 do
+		set s1ms2 = set s1ms2 SetMinus str el2;
+	rof
+
+	/* INTERSECTION */
+	set s1ns2 = set s1us2;
+
+	for str el1 in set s1ms2 do
+		set s1ns2 = set s1ns2 SetMinus str el1;
+	rof
+
+	for str el2 in set s2ms1 do
+		set s1ns2 = set s1ns2 SetMinus str el2;
+	rof
+
+	print set s1ns2;
 end
