@@ -1,36 +1,56 @@
 begin
-	/* Determine which set to use */
-	let str char_selected;
-	let str aORb;
+	let set s1; let set s2;
 
-	for str inp1 in args0 do
-		if (str char_selected == "") then
-			str char_selected = str inp1;
-			str aORb = "a";
-		fi
+	let set s1us2;
+
+	let set s1ms2; let set s2ms1;
+
+	let set s1ns2;
+
+	let str temp;
+
+	/* POPULATE SETS */
+	for str inp0 in args0 do
+		set s1 = set s1 Insert str inp0;
+		set s1us2 = set s1us2 Insert str inp0;
 	rof
 
-	if (str char_selected == "") then
-		for str inp2 in args1 do
-			if (str char_selected == "") then
-				str char_selected = str inp2;
-				str aORb = "b";
-			fi
+	for str inp1 in args1 do
+		str temp = "a" ^ str inp1;
+		set s2 = set s2 Insert str inp1;
+		set s1us2 = set s1us2 Insert str inp1;
+	rof
+
+	/* SET MINUS */
+	set s1ms2 = set s1;
+	set s2ms1 = set s2;
+
+	for str el1 in set s1 do
+		set s2ms1 = set s2ms1 SetMinus str el1;
+	rof
+
+	for str el2 in set s2 do
+		set s1ms2 = set s1ms2 SetMinus str el2;
+	rof
+
+	/* INTERSECTION */
+	set s1ns2 = set s1us2;
+
+	for str el1 in set s1ms2 do
+		set s1ns2 = set s1ns2 SetMinus str el1;
+	rof
+
+	for str el2 in set s2ms1 do
+		set s1ns2 = set s1ns2 SetMinus str el2;
+	rof
+
+	let set lang;
+	for str el1 in set s1us2 do
+		for str el2 in set s1ns2 do
+			str temp = str el1 ^ str el2; 
+			set lang = set lang Insert str temp;
 		rof
-	fi
-
-	let str arg;
-	let str str_out;
-	let set lang_out;
-
-	let int count;
-	for int count < int OUTPUT_COUNT do
-		int count = int count + 1;
-		
-		str str_out = str char_selected ^ str arg;
-		set lang_out = set lang_out Insert str str_out;
-		str arg = str arg ^ str aORb;
 	rof
 
-	print set lang_out;
+	print set lang;
 end
