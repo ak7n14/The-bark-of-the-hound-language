@@ -1,0 +1,372 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[document]{ragged2e}
+
+\usepackage{xcolor}
+\usepackage{varwidth}
+
+\oddsidemargin = 4pt
+\textwidth = 500pt
+
+\begin{document}
+
+\begin{center} 
+    \textsc{\large University of Southampton}       \\[1.5cm]
+    \textsc{\LARGE Programming Language Concepts}   \\[0.5cm]
+    \textsc{\normalsize April 2017}                 \\[3.0cm]
+    
+    \emph{  \large Bark of the Hound Language}      \\[0.5cm]
+    \emph{  \large Authors:}                        \\
+    
+    \textsc{Fraser Crossman} \emph{(fc4g15)}        \\
+    \textsc{Anish Katariya} \emph{(ak7n14)}         \\
+\end{center}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+% Colour definitions for program syntax highlighting
+
+\definecolor{variable}  {rgb}{0.01, 0.28, 1.00}
+\definecolor{type}      {rgb}{0.20, 0.20, 0.60}
+\definecolor{operator}  {rgb}{0.00, 0.00, 0.00}
+\definecolor{stringlit} {rgb}{0.80, 0.00, 0.00}
+\definecolor{comment}   {rgb}{0.00, 0.50, 0.00}
+\definecolor{token}     {rgb}{0.00, 0.20, 0.70}
+\definecolor{error}     {rgb}{1.00, 0.00, 0.20}
+
+% Commands for using predefined colours
+
+ % trailing space is important
+
+\newcommand{\variable}  [1]{\textcolor{variable}    {#1} } 
+\newcommand{\type}      [1]{\textcolor{type}        {#1} }
+\newcommand{\operator}  [1]{\textcolor{operator}    {#1} }
+\newcommand{\stringlit} [1]{\textcolor{stringlit}   {#1} }
+\newcommand{\comment}   [1]{\textcolor{comment}     {#1} }
+\newcommand{\token}     [1]{\textcolor{token}       {#1} }
+\newcommand{\error}     [1]{\textcolor{error}       {#1} }
+
+% Commands for inserting well formatted programs
+
+\newcommand{\program}[1]{
+    %\emph{\textbf{Example:}}\\
+    \noindent\texttt{#1}
+}
+\newcommand{\tab}[1]{\hskip 3em #1}
+
+% -- Tokens from lexer.mll --
+% Program Structure
+\newcommand{\BEGIN}{\token {begin}}
+\newcommand{\END}{\token {end}}
+\newcommand{\INPUT}[1]{\variable {args#1}}
+\newcommand{\OC}{\variable {OUTPUT\_COUNT}}
+\newcommand{\ES}{\variable {\_\_empty\_string}}
+
+% Types
+\newcommand{\INT}[1]{\type{int} #1}
+\newcommand{\STR}[1]{\type{str} #1}
+\newcommand{\BOOL}[1]{\type{bool} #1}
+\newcommand{\SET}[1]{\type{set} #1}
+
+% If then else Statements
+\newcommand{\IF}{\token {if}}
+\newcommand{\ELSE}{\token {else}}
+\newcommand{\THEN}{\token {then}}
+\newcommand{\FI}{\token {fi}}
+
+% For loop definition
+\newcommand{\FOR}{\token {for}}
+\newcommand{\IN}{\token {in}}
+\newcommand{\DO}{\token {do}}
+\newcommand{\ROF}{\token {rof}}
+
+% Print for output from programs
+\newcommand{\PRINT}{\token {print}}
+
+% Assignment token
+\newcommand{\LET}{\token {let}}
+
+% Mathematical operators
+\newcommand{\ASS}{\operator {$=$}}
+\newcommand{\PLUS}{\operator {+}}
+\newcommand{\MINUS}{\operator {-}}
+\newcommand{\DIVIDE}{\operator {/}}
+\newcommand{\TIMES}{\operator {*}}
+\newcommand{\MOD}{\operator {\%}}
+
+% String and Set operators
+\newcommand{\INSERT}{\operator {Insert}}
+\newcommand{\SETMINUS}{\operator {SetMinus}}
+\newcommand{\CON}{\operator {\^{}}}
+
+% Boolean values
+\newcommand{\TRUE}{\token {true}}
+\newcommand{\FALSE}{\token {false}}
+
+% Boolean operators
+\newcommand{\LT}{\operator {$<$}}
+\newcommand{\GT}{\operator {$>$}}
+\newcommand{\LTE}{\operator {$<=$}}
+\newcommand{\OR}{\operator {$||$}}
+\newcommand{\AND}{\operator {$\&\&$}}
+\newcommand{\GTE}{\operator {$>=$}}
+\newcommand{\EQ}{\operator {$==$}}
+\newcommand{\NEQ}{\operator {$!=$}}
+\newcommand{\NOT}{\operator {$!$}}
+
+% String literal
+\newcommand{\STRING}[1]{\stringlit{"#1"}}
+
+% Comments
+\newcommand{\COMMENT}[1]{\comment{/*#1*/}}
+
+% Errors
+\newcommand{\ERROR}[1]{\error{#1}}
+
+\section{Introduction}
+
+The Bark of the Hound Language is a domain specific programming language 
+capable of manipulating sets through the use of the \INSERT and \SETMINUS 
+operators. Using this language were able to take finite languages as input 
+and manipulate them to create new languages. The language also includes 
+features found in general purpose programming languages such as printing, 
+looping, conditionals, mathematical operators, and boolean operators that can 
+be used to solve a wide variety of problems. All inputs are assumed to be a 
+sequence of finite sets followed by a positive integer, which represents the 
+maximum size of the output set.\\
+
+\program{
+\{a, bc, de\}\\
+3
+}
+
+\section{Syntax}
+\subsection{Basics}
+A well structured program written in the language starts with a \BEGIN token 
+and ends with an \END token. Comments in the language are written between two 
+backslash star sequences (\COMMENT{ comment }) 
+
+\subsection{Variable Types}
+The language has support for three primitive types; Integer, String and Boolean 
+in addition to the Set type. Each variable declaration is preceded by the 
+keyword \LET and followed by a semicolon.
+
+\program{
+    \tab    \LET \INT{\noindent w};
+    \tab    \COMMENT{ Integer named w }
+    \tab    \LET \STR{ x};
+    \tab    \COMMENT{ String named x }\\
+    \tab    \LET \BOOL{y};
+    \tab    \COMMENT{ Boolean named y }
+    \tab    \LET \SET{ z};
+    \tab    \COMMENT{ Set named z }\\
+}
+
+\subsection{Operations}
+\subsubsection{Integers}
+The language has support for the following mathematical operators: addition 
+( \PLUS), subtraction ( \MINUS), division ( \DIVIDE), multiplication ( \TIMES), 
+and modulus ( \MOD). All mathematical operators are left associative. Brackets 
+can be used to override their precedence.\\
+
+\program{
+    \tab    \LET \INT{x} \ASS 4;
+    \tab    \INT{x} \ASS \INT{x} \PLUS 1 \TIMES 5;
+    \tab    \COMMENT{ x = 9 }\\
+}
+
+\subsubsection{Strings}
+For string manipulation the language has support for string concatenation 
+( \CON) operator.\\
+
+\program{
+    \tab    \LET \STR{x} \ASS \STRING{Julian};
+    \tab    \LET \STR{y} \ASS \STRING{Rathke};\\
+    \tab    \LET \STR{ z} \ASS \STR{x} \CON \STRING{ } \CON \STR{y};
+    \tab    \COMMENT{ z = "Julian Rathke" }\\
+}
+
+\subsubsection{Booleans}
+The language has support for boolean operators such as equals ( \EQ), not equal 
+( \NEQ), less than ( \LT), greater than ( \GT), less than or equal to ( \LTE), 
+greater than or equal to ( \GTE) , and ( \AND) , or ( \OR), and not ( \NOT)\\
+
+\program{
+    \tab    \LET \BOOL{a} \ASS (3 \GT 4);
+    \tab    \COMMENT{ a = false}\\
+}
+
+\subsubsection{Sets}
+The language has support for both set minus ( \SETMINUS) and set insert 
+( \INSERT) operations. Sets also maintain alphabetical order when stored and 
+printed to standard output.
+
+\program{
+    \tab    \LET \SET{x};\\
+    \tab    \SET{x} \ASS \SET{x} \INSERT \STRING{A};
+    \tab    \COMMENT{ x = \{A\} }\\
+    \tab    \SET{x} \ASS \SET{x} \INSERT \STRING{C};
+    \tab    \COMMENT{ x = \{A, C\} }\\
+    \tab    \SET{x} \ASS \SET{x} \INSERT \STRING{B};
+    \tab    \COMMENT{ x = \{A, B, C\} }\\
+}
+
+\subsubsection{Print}
+The language provides the ability to print \textbf{any} data type to standard 
+output using the \PRINT statement.\\
+
+\section{Control Flow}
+The language has support for conditional if else statements and for loops which 
+may be nested.
+
+\subsection{If- Then - Else}
+If then else statements use the following syntax:\\
+\IF {$<$}condition{$>$} \THEN {$<$}statement{$>$} \FI\\
+or\\
+\IF {$<$}condition{$>$} \THEN {$<$}statement{$>$} \ELSE {$<$}statement{$>$} \FI\\
+
+\program{
+    \BEGIN\\
+    \tab    \IF (3 \LT 4) \THEN\\
+    \tab    \tab    \PRINT "GREEN";\\
+    \tab    \ELSE\\
+    \tab    \tab    \PRINT "RED";\\
+    \tab    \FI
+    \tab    \COMMENT{ "GREEN" is printed to standard output }\\
+    \END
+}
+
+\subsection{For Loop}
+The language has support for regular for loop and enhanced for loops. The for 
+loops can be described written as either:\\
+\FOR {$<$}condition{$>$} \DO {$<$}statement{$>$} \ROF\\
+or\\
+\FOR {$<$}string{$>$} \IN {$<$}set{$>$} \DO {$<$}statement{$>$} \ROF\\
+
+\program{
+    \BEGIN\\
+    \tab    \LET \SET{s1us2};\\
+    \tab    \LET \STR{temp};\\
+	\tab    \FOR \STR{inp1} \IN \INPUT{0} \DO\\
+	\tab    \tab    \STR{temp} \ASS \STRING{a} \CON \STR{inp1};\\
+	\tab    \tab    \SET{s1us2} \ASS \SET{s1us2} \INSERT \STR{temp};\\
+	\tab    \ROF\\
+    \END
+}
+
+\section{Additional features}
+\subsection{Programmer Convenience}
+This language provides many programmer conveniences to aid the writing of 
+simple programs. As previously noted, all sets store their strings 
+alphabetically which is advantageous when printing only a subset of a language 
+stored in a set variable. Variables are also initialised on declaration to 
+prevent the need to initialise a variable which will later be reassigned. 
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        \emph{Type}     & \emph{Initialised Value}\\\hline
+        \emph{Integer}  & 0\\                       \hline
+        \emph{String}   & ""\\                      \hline
+        \emph{Boolean}  & false\\                   \hline
+        \emph{Set}      & \{:\}\\                   \hline
+    \end{tabular}
+    \caption{Depicts data types and automatically initialised values}
+    \label{table:1}
+\end{table}
+
+In order to ensure that the output of a program does not exceed the value 
+specified by the trailing integer in input the binding \OC is added so that it 
+can be referenced and used in programs. This is especially useful when working 
+with infinite sets.
+
+\program{
+    \BEGIN\\
+    \tab    \LET \SET{aStar};
+    \tab    \LET \STR{aString};
+    \tab    \LET \INT{count};\\
+	\tab    \FOR \INT{count} \LT \INT{\OC} \DO\\
+	\tab    \tab    \INT{count} \ASS \INT{count} \PLUS 1;\\
+	\tab    \tab    \SET{aStar} \ASS \SET{aStar} \INSERT \STR{aString};\\
+	\tab    \tab    \STR{aString} \ASS \STR{aString} \CON \STRING{a};\\
+	\tab    \ROF\\
+	\tab    \PRINT \SET{aStar};
+	\tab    \COMMENT{ a* is printed - up to the length specified }\\
+    \END
+}
+
+For the purposes of readability, it is also possible to use a predefined 
+constant to represent the empty sting named \ES.
+
+\subsection{Type Checking}
+The symbols \PLUS, \MINUS, \DIVIDE, and \TIMES must be used with integer values 
+only. Similarly, the string concatenation operator \CON must be used with only 
+strings. The boolean operators \GT, \GTE, \LT, and \LTE must also be used with 
+integer values only however, \OR, \AND, and \NOT must only be used with Boolean 
+type expressions.
+
+The \EQ and \NEQ operators may be used by integer, string, or Boolean values. 
+Finally the operators \INSERT and \SETMINUS must only be used with a set as the 
+first argument and a string as the second. This is because, in this language, 
+sets only contain strings. It is convenient for the programmer that these rules 
+are enforced by the language interpreter as it means that unintentional 
+problems with a program can be found early in development.
+
+\newpage
+
+\subsection{Error Messages}
+The error messages displayed are informative and indicate to the programmer
+the type of error that has occurred. This proves to be very useful when 
+debugging user written programs.
+
+\subsubsection{Syntax Errors}
+If any of the aforementioned type checks fail or a general syntax error is 
+found then the following error is displayed: 
+\texttt{\ERROR{Fatal error: exception Parsing.Parse\_error}}
+
+\subsubsection{Invalid Variable References}
+If a variable is not present in the current environment, an error specific to 
+the specified type is displayed. The general form of this error is:
+
+\texttt{
+    \ERROR{
+        Fatal error: exception Failure("Variable [type] [var name] Not Declared 
+        as a [type name] type. Hint: Maybe try - let [type] [var name] = 
+        [default value];")
+    }
+}
+
+An example of this type of error where x is an integer referenced, but not 
+present, in the current environment is shown below:
+
+\program{
+    \ERROR{
+        Fatal error: exception Failure("Variable int x Not Declared as an 
+        integer type. Hint: Maybe try - let int x = 0;")
+    }
+}
+
+If the token denoting the type of a variable is missing the following error is 
+displayed: \texttt{\ERROR{Fatal error: exception Failure("lexing: empty token")}}
+
+If a variable is reused in the subject of a for loop then an error is thrown.
+\texttt{\ERROR{Variable [var name] is already in use. Try changing variable name.}}
+
+Our language allows reference to arguments. If an undefined argument is 
+specified then the following error is displayed: \texttt{\ERROR{Invalid Input 
+[arg ref].Enter valid args\#.}}
+
+\subsubsection{Division by Zero Error}
+If a division by 0 is performed this error is displayed: 
+\texttt{\ERROR{Fatal division by 0 error.}}
+
+\subsubsection{Print Error}
+If a set, for whatever reason, fails to print correctly when using the print 
+keyword then the following error is displayed: 
+\texttt{\ERROR{Set undefined. Ensure the set is correctly defined.}}
+\end{document}
